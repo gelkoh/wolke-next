@@ -1,0 +1,44 @@
+{
+    "user1": [
+        {
+            "id": "file1",
+            "name": "Project Specs",
+            "size": 2,
+            "date": "2023-09-01",
+            "changedate": "2023-09-15",
+            "type": ".pdf"
+        },
+        {
+            "id": "file2",
+            "name": "Meeting Notes",
+            "size": 0.5,
+            "date": "2023-09-05",
+            "changedate": "2023-09-10",
+            "type": ".txt"
+        },
+        {
+            "id": "file3",
+            "name": "Research Paper",
+            "size": 8,
+            "date": "2023-09-10",
+            "changedate": "2023-09-20",
+            "type": ".docx"
+        },
+        {
+            "id": "file4",
+            "name": "Expense Report",
+            "size": 12,
+            "date": "2023-09-14",
+            "changedate": "2023-09-21",
+            "type": ".pdf"
+        },
+        {
+            "id": "file5",
+            "name": "Presentation",
+            "size": 3,
+            "date": "2023-09-08",
+            "changedate": "2023-09-12",
+            "type": ".ppt"
+        }
+    ]
+}

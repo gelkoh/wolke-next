@@ -1,0 +1,10 @@
+[
+    {
+        "id": "user1",
+        "username": "alice",
+        "password": "securePass123",
+        "email": "alice@example.com",
+        "profile_pic_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+        "storage_amount": 1000
+    }
+]
