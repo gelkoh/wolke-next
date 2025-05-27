@@ -18,30 +18,32 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-      <nav className="bg-neutral-800">
-          <ul>
-              <li>
-                  <Link href="/" title="Wolke">Wolke</Link>
-              </li>
-              <li>
-                  <Link href="/storage" title="Storage">Storage</Link>
-              </li>
-              <li>
-                  <Link href="/log" title="Log">Log</Link>
-              </li>
-              <li>
-                  <Link href="/profile" title="Wolke">Profile</Link>
-              </li>
-          </ul>
-      </nav>
+    return (
+        <html lang="en">
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+                <nav className="bg-neutral-800">
+                    <ul className="flex gap-x-8 p-4">
+                        <li>
+                            <Link href="/" title="Wolke">Wolke</Link>
+                        </li>
+                        <li>
+                            <Link href="/storage" title="Storage">Storage</Link>
+                        </li>
+                        <li>
+                            <Link href="/log" title="Log">Log</Link>
+                        </li>
+                        <li>
+                            <Link href="/profile" title="Wolke">Profile</Link>
+                        </li>
+                    </ul>
+                </nav>
 
-        {children}
-      </body>
-    </html>
-  );
+                <main className="p-4">
+                    {children}
+                </main>
+            </body>
+        </html>
+    );
 }
