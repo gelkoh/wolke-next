@@ -26,7 +26,7 @@ export default function ProfilePage() {
         />
 
         <label htmlFor="email" className="block mt-2">Email:</label>
-        <input
+        <inputç
         className="w-full p-2 mt-1 rounded-sm border border-neutral-600 "
           type="email"
           id="email"
