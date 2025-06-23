@@ -10,3 +10,24 @@ services:
       - .:/app
       - /app/node_modules
 
+  backend:
+    # name the container to find it later
+    container_name: wolke-backend
+    # use the precompiled official mongo image from the docker registry
+    image: mongo:latest
+    restart: always
+    environment:
+      # configure database name
+      DB_NAME: wolke-next
+      # configure database name for the seed script
+      MONGO_INITDB_DATABASE: wolke-next
+    # configure ports, the mongoDB should be available at localhost:27017
+    ports:
+      - 27017:27017
+    # sync files between host and container
+    volumes:
+      # map seed script
+      # - ./.docker/wolke-backend/seed-mongodb.js:/docker-entrypoint-initdb.d/seed-mongodb.js
+      
+      # map mongoDB database to a shared volume to persist the data
+      - ./mongodb_data_container:/data/db

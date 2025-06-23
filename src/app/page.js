@@ -2,8 +2,6 @@ import filesData from "../../public/data/files.json"
 import usersData from "../../public/data/users.json"
 
 export default function Home() {
-    // const userFiles = files.user1
-
     const targetUserId = "user1";
     const currentUser = usersData.find(user => user.id === targetUserId);
     const userFiles = filesData[targetUserId];

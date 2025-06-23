@@ -4,7 +4,8 @@ import { useState } from "react";
 import logs from "../../../public/data/logs.json";
 
 export default function LogTable() {
-  const [rows, setRows] = useState(logs);
+  const user1Logs = logs["user1"]
+  const [rows, setRows] = useState(user1Logs);
   const [sortDirections, setSortDirections] = useState({});
 
   const sortTable = (columnIndex) => {

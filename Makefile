@@ -2,7 +2,7 @@
 
 PORT = 3000
 URL := http://localhost:$(PORT)
-container_name=wolke
+container_name=wolke-next
 
 # Default target: build and run the container
 all: up
