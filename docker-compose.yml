@@ -10,6 +10,7 @@ services:
       - .:/app
       - /app/node_modules
 
+
   backend:
     # name the container to find it later
     container_name: wolke-backend
