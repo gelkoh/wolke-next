@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                             <Link href="/" title="Wolke">Wolke</Link>
                         </li>
                         <li>
-                            <Link href="/storage" title="Storage">Storage</Link>
+                            <Link href="/storage/user1" title="Storage">Storage</Link>
                         </li>
                         <li>
                             <Link href="/log" title="Log">Log</Link>
