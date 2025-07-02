@@ -67,3 +67,14 @@ curl -X GET http://localhost:3000/api/users/user1
 ```
 curl -X DELETE      http://localhost:3000/api/users/user1/files?fileId=some_ID
 ```
+
+## Example PATCH file
+
+```
+curl -X http://localhost:3000/api/users/user1/files \
+-H "Content-Type: application/json" \
+-d '{
+    "fileId": "some_ID",
+    "newName": "new_file_name.pdf"
+}'
+```
