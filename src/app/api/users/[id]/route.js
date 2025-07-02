@@ -1,13 +1,14 @@
-const mongodbURI = 'mongodb://backend:27017/wolke-next';
 import mongoose from "mongoose"
 import { UserSchema } from "../../../../../model/schema.js"
+
+const mongodbURI = 'mongodb://backend:27017/wolke-next'
 
 let isConnected = false
 
 async function connectDb() {
     if (isConnected) {
-        console.log("Using existing database connection") 
-        return;
+        console.log("Using existing database connection")
+        return
     }
 
     try {
@@ -20,12 +21,12 @@ async function connectDb() {
     }
 }
 
+const User = mongoose.models.User || mongoose.model("User", UserSchema)
+
 export async function GET(request, { params }) {
-    await connectDb() 
+    await connectDb()
 
     const { id } = params
-
-    const User = mongoose.model("User", UserSchema)
 
     try {
         const user = await User.findOne({ id: id })
@@ -43,7 +44,11 @@ export async function GET(request, { params }) {
         })
     } catch(error) {
         console.error("Error fetching user: ", error)
-        return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
+        return new Response(JSON.stringify({
+            message: "Internal Server Error",
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }), {
             status: 500,
             headers: { "Content-type": "application/json"}
         })
