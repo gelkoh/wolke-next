@@ -1,121 +1,145 @@
-import mongoose from 'mongoose';
-import { FileSchema, UserSchema } from '../../../../../../model/schema.js'
-
 const mongodbURI = 'mongodb://backend:27017/wolke-next';
+import mongoose from "mongoose"
+import { FileSchema } from '../../../../../../model/schema.js';
 
-let isConnected = false;
+let isConnected = false
 
 async function connectDb() {
     if (isConnected) {
-        console.log('Using existing DB connection for files API');
+        console.log("Using existing database connection") 
         return;
     }
+
     try {
-        await mongoose.connect(mongodbURI);
-        isConnected = true;
-        console.log('MongoDB connected successfully for files API!');
-    } catch (error) {
-        console.error('MongoDB connection error for files API:', error);
-        throw new Error('Failed to connect to database for files API');
+        await mongoose.connect(mongodbURI)
+        isConnected = true
+        console.log("MongoDB connected successfully")
+    } catch(error) {
+        console.error("MongoDB connection error: ", error)
+        throw new Error("Failed to connect to database")
     }
 }
 
-const File = mongoose.models.File || mongoose.model('File', FileSchema);
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const FileModel = mongoose.models.File || mongoose.model("File", FileSchema);
 
-export async function GET(request, { params }) {
-    await connectDb();
-
-    const { id: userIdFromUrl } = params; 
-
+export async function GET(request, context) {
     try {
-        const existingUser = await User.findOne({ id: userIdFromUrl });
-
-        if (!existingUser) {
-            return new Response(JSON.stringify({ message: `User with ID '${userIdFromUrl}' not found.` }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
-
-        const files = await File.find({ user_id: userIdFromUrl }); 
-
+        await connectDb(); 
+        const { id: userId } = context.params;
+        const files = await FileModel.find({ user_id: userId }); 
         return new Response(JSON.stringify(files), {
             status: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-type": "application/json" }
         });
-    } catch (error) {
-        console.error('Error fetching files:', error);
-        return new Response(JSON.stringify({ 
-            message: 'Internal Server Error', 
-            error: error.message, 
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
-        }), {
+    } catch(error) {
+        console.error("Error fetching user files: ", error);
+        return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-type": "application/json"}
+        });
+    }
+}
+export async function POST(request, context) { 
+    let body;
+    try {
+        await connectDb();
+        const { id: userId } = context.params; 
+
+        try {
+            body = await request.json();
+            console.log("Successfully parsed JSON body:", body);
+        } catch (jsonParseError) {
+            console.error("Error parsing request body as JSON:", jsonParseError);
+            const rawBodyContent = await request.text();
+            console.error("Raw body content that caused error:", rawBodyContent);
+            return new Response(JSON.stringify({ 
+                message: "Invalid request body. Expected JSON.", 
+                error: jsonParseError.message,
+                rawContent: rawBodyContent
+            }), {
+                status: 400,
+                headers: { "Content-type": "application/json" }
+            });
+        }
+
+        const { name, size, type } = body;
+
+        if (!name || typeof size === 'undefined' || !type) {
+            return new Response(JSON.stringify({ message: "Missing required file metadata (name, size, type)." }), {
+                status: 400,
+                headers: { "Content-type": "application/json" }
+            });
+        }
+
+        const newFile = new FileModel({ 
+            id: crypto.randomUUID(),
+            user_id: userId,
+            name: name,
+            size: size,
+            date: new Date().toISOString().split('T')[0], 
+            changedate: new Date().toISOString().split('T')[0], 
+            type: type,
+        });
+
+        await newFile.save(); 
+
+        console.log(`File metadata for '${name}' saved for user '${userId}'.`);
+
+         return new Response(JSON.stringify({ 
+            message: `File '${name}' uploaded successfully!`, 
+            file: newFile
+        }), {
+            status: 201,
+            headers: { "Content-type": "application/json" }
+        });
+
+    } catch(error) {
+        console.error("Unhandled error in POST /files:", error);
+        return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
+            status: 500,
+            headers: { "Content-type": "application/json"}
         });
     }
 }
 
-export async function POST(request, { params }) {
-    await connectDb();
 
-    const { id: userIdFromUrl } = params;
-
+export async function DELETE(request, context) {
     try {
-        const existingUser = await User.findOne({ id: userIdFromUrl });
-        if (!existingUser) {
-            return new Response(JSON.stringify({ message: `User with ID '${userIdFromUrl}' not found.` }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
+        await connectDb();
+        const { id: userId } = context.params;
 
-        const body = await request.json(); // Liest den Request-Body als JSON
+        const { searchParams } = new URL(request.url);
+        const fileIdToDelete = searchParams.get('fileId');
 
-        const { id: fileIdFromBody, name, size, date, changedate, type } = body;
-
-        if (!fileIdFromBody || !name || typeof size !== 'number' || !date || !changedate || !type) {
-            return new Response(JSON.stringify({ message: 'Missing or invalid required file data in request body.' }), {
+        if (!fileIdToDelete) {
+            return new Response(JSON.stringify({ message: "Missing 'fileId' query parameter." }), {
                 status: 400,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-type": "application/json" }
             });
         }
 
-        const newFile = new File({
-            id: fileIdFromBody,
-            user_id: userIdFromUrl,
-            name,
-            size,
-            date,
-            changedate,
-            type,
-        });
+        const result = await FileModel.deleteOne({ id: fileIdToDelete, user_id: userId });
 
-        await newFile.save();
-
-        return new Response(JSON.stringify({ message: 'File created successfully', file: newFile }), {
-            status: 201,
-            headers: {
-                'Content-Type': 'application/json',
-                'Location': `/api/users/${userIdFromUrl}/files/${newFile.id}` 
-            },
-        });
-    } catch (error) {
-        console.error('Error creating file:', error);
-        if (error.code === 11000) {
-            return new Response(JSON.stringify({ message: `File with ID '${body.id}' already exists for user '${userIdFromUrl}'.`, error: error.message }), {
-                status: 409,
-                headers: { 'Content-Type': 'application/json' },
+        if (result.deletedCount === 0) {
+            return new Response(JSON.stringify({ message: "File not found or not authorized to delete." }), {
+                status: 404, 
+                headers: { "Content-type": "application/json" }
             });
         }
-        return new Response(JSON.stringify({ 
-            message: 'Internal Server Error', 
-            error: error.message, 
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
-        }), {
+
+        console.log(`File with ID '${fileIdToDelete}' deleted for user '${userId}'.`);
+        // In einem realen Szenario würden wir hier auch die tatsächliche Datei aus dem Objektspeicher löschen der nicht existiert
+
+        return new Response(JSON.stringify({ message: `File with ID '${fileIdToDelete}' deleted successfully.` }), {
+            status: 200, // OK
+            headers: { "Content-type": "application/json" }
+        });
+
+    } catch(error) {
+        console.error("Unhandled error in DELETE /files:", error);
+        return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-type": "application/json"}
         });
     }
 }
