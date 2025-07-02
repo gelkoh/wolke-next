@@ -65,5 +65,5 @@ curl -X GET http://localhost:3000/api/users/user1
 ## Example DELETE file
 
 ```
-curl -X DELETE93329709-91b5-4349-b1b5-65bd8f920f4as/user1/files?fileId=some_ID
+curl -X DELETE      http://localhost:3000/api/users/user1/files?fileId=some_ID
 ```
