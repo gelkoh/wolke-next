@@ -1,4 +1,4 @@
-.PHONY: all up down build clean clean-all open
+.PHONY: all up down build dev-up clean clean-all open
 
 PORT = 3000
 URL := http://localhost:$(PORT)
@@ -19,6 +19,10 @@ up: build
 # Stop and remove the Docker container(s)
 down:
 	docker compose down
+
+# Builds images if necessary (cache-friendly)
+dev-up:
+	docker compose up --detach
 
 # Stop, remove, and clean up Docker resources
 clean: down
