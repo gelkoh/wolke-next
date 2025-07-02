@@ -128,7 +128,6 @@ export async function DELETE(request, context) {
         }
 
         console.log(`File with ID '${fileIdToDelete}' deleted for user '${userId}'.`);
-        // In einem realen Szenario würden wir hier auch die tatsächliche Datei aus dem Objektspeicher löschen der nicht existiert
 
         return new Response(JSON.stringify({ message: `File with ID '${fileIdToDelete}' deleted successfully.` }), {
             status: 200, // OK
@@ -140,6 +139,75 @@ export async function DELETE(request, context) {
         return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
             status: 500,
             headers: { "Content-type": "application/json"}
+        });
+    }
+}
+
+
+export async function PATCH(request, context) {
+    let body;
+    try {
+        await connectDb();
+        const { id: userId } = context.params;
+
+        try {
+            body = await request.json();
+            console.log("Successfully parsed JSON body for PATCH:", body);
+        } catch (jsonParseError) {
+            console.error("Error parsing request body as JSON for PATCH:", jsonParseError);
+            const rawBodyContent = await request.text();
+            console.error("Raw body content that caused error:", rawBodyContent);
+            return new Response(JSON.stringify({
+                message: "Invalid request body. Expected JSON.",
+                error: jsonParseError.message,
+                rawContent: rawBodyContent
+            }), {
+                status: 400,
+                headers: { "Content-type": "application/json" }
+            });
+        }
+
+        const { fileId, newName } = body;
+
+        if (!fileId || !newName || typeof newName !== 'string' || newName.trim() === '') {
+            return new Response(JSON.stringify({ message: "Missing or invalid 'fileId' or 'newName' in request body." }), {
+                status: 400,
+                headers: { "Content-type": "application/json" }
+            });
+        }
+
+        const updatedFile = await FileModel.findOneAndUpdate(
+            { id: fileId, user_id: userId },
+            { $set: { name: newName, changedate: new Date().toISOString().split('T')[0] } },
+            { new: true }
+        );
+
+        if (!updatedFile) {
+            return new Response(JSON.stringify({ message: "File not found for this user or file ID is incorrect." }), {
+                status: 404,
+                headers: { "Content-type": "application/json" }
+            });
+        }
+
+        console.log(`File '${fileId}' renamed to '${newName}' for user '${userId}'.`);
+
+        return new Response(JSON.stringify({
+            message: `File '${fileId}' renamed successfully to '${newName}'.`,
+            file: updatedFile
+        }), {
+            status: 200,
+            headers: { "Content-type": "application/json" }
+        });
+
+    } catch (error) {
+        console.error("Unhandled error in PATCH /files:", error);
+        return new Response(JSON.stringify({
+            message: "Internal Server Error",
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }), {
+            status: 500,
+            headers: { "Content-type": "application/json" }
         });
     }
 }
