@@ -34,3 +34,36 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+
+# Endpoint USAGE
+
+## Example POST new file
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"name": "another_document.docx", "size": 1.5, "type": ".docx"}' \
+     http://localhost:3000/api/users/user1/files
+
+```
+
+## Example GET files for a user:
+
+```
+curl -X GET http://localhost:3000/api/users/user1/files
+
+```
+
+## Example GET user
+
+```
+curl -X GET http://localhost:3000/api/users/user1
+```
+
+## Example DELETE file
+
+```
+curl -X DELETE93329709-91b5-4349-b1b5-65bd8f920f4as/user1/files?fileId=some_ID
+```
