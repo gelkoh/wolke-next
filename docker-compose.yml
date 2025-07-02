@@ -28,7 +28,7 @@ services:
     # sync files between host and container
     volumes:
       # map seed script
-      # - ./.docker/wolke-backend/seed-mongodb.js:/docker-entrypoint-initdb.d/seed-mongodb.js
+      - ./.docker/wolke-backend/seed-mongodb.js:/docker-entrypoint-initdb.d/seed-mongodb.js
       
       # map mongoDB database to a shared volume to persist the data
       - ./mongodb_data_container:/data/db
