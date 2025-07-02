@@ -1,12 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import logs from "../../../public/data/logs.json";
+import { useEffect, useState } from "react";
 
-export default function LogTable() {
-  const user1Logs = logs["user1"]
-  const [rows, setRows] = useState(user1Logs);
+export default function LogTable({ userId }) {
+  const [rows, setRows] = useState([]);
   const [sortDirections, setSortDirections] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    async function fetchLogs() {
+      try {
+        const res = await fetch(`/api/users/${userId}/log`);
+        if (!res.ok) {
+          throw new Error(`Error fetching logs: ${res.status}`);
+        }
+        const data = await res.json();
+        setRows(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLogs();
+  }, [userId]);
 
   const sortTable = (columnIndex) => {
     const isDate = columnIndex === 2;
@@ -46,6 +67,9 @@ export default function LogTable() {
     if (sortDirections[colIndex] === "desc") return "↑";
     return "";
   };
+
+  if (loading) return <p>Loading logs...</p>;
+  if (error) return <p>Error loading logs: {error}</p>;
 
   return (
     <div>
