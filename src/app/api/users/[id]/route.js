@@ -1,23 +1,20 @@
 import mongoose from "mongoose"
 import { UserSchema } from "../../../../../model/schema.js"
 
-const mongodbURI = 'mongodb://backend:27017/wolke-next'
-
-let isConnected = false
+const mongodbURI = process.env.MONGO_URI || 'mongodb://backend:27017/wolke-next';
 
 async function connectDb() {
-    if (isConnected) {
-        console.log("Using existing database connection")
-        return
+    if (mongoose.connection.readyState === 1) {
+        console.log("Using existing database connection");
+        return;
     }
 
     try {
-        await mongoose.connect(mongodbURI)
-        isConnected = true
-        console.log("MongoDB connected successfully")
-    } catch(error) {
-        console.error("MongoDB connection error: ", error)
-        throw new Error("Failed to connect to database")
+        await mongoose.connect(mongodbURI, {});
+        console.log("MongoDB connected successfully!");
+    } catch (error) {
+        console.error("MongoDB connection error: ", error);
+        throw new Error("Failed to connect to database");
     }
 }
 

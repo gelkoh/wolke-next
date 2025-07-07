@@ -1,22 +1,20 @@
-const mongodbURI = 'mongodb://backend:27017/wolke-next';
 import mongoose from "mongoose"
 import { FileSchema } from '../../../../../../model/schema.js';
 
-let isConnected = false
+const mongodbURI = process.env.MONGO_URI || 'mongodb://backend:27017/wolke-next';
 
 async function connectDb() {
-    if (isConnected) {
-        console.log("Using existing database connection") 
+    if (mongoose.connection.readyState === 1) {
+        console.log("Using existing database connection");
         return;
     }
 
     try {
-        await mongoose.connect(mongodbURI)
-        isConnected = true
-        console.log("MongoDB connected successfully")
-    } catch(error) {
-        console.error("MongoDB connection error: ", error)
-        throw new Error("Failed to connect to database")
+        await mongoose.connect(mongodbURI, {});
+        console.log("MongoDB connected successfully!");
+    } catch (error) {
+        console.error("MongoDB connection error: ", error);
+        throw new Error("Failed to connect to database");
     }
 }
 
@@ -102,7 +100,6 @@ export async function POST(request, context) {
     }
 }
 
-
 export async function DELETE(request, context) {
     try {
         await connectDb();
@@ -118,11 +115,12 @@ export async function DELETE(request, context) {
             });
         }
 
-        const result = await FileModel.deleteOne({ id: fileIdToDelete, user_id: userId });
+        // KORREKTUR: Suche nach _id, nicht id
+        const result = await FileModel.deleteOne({ _id: new mongoose.Types.ObjectId(fileIdToDelete), user_id: userId });
 
         if (result.deletedCount === 0) {
             return new Response(JSON.stringify({ message: "File not found or not authorized to delete." }), {
-                status: 404, 
+                status: 404,
                 headers: { "Content-type": "application/json" }
             });
         }
@@ -130,19 +128,18 @@ export async function DELETE(request, context) {
         console.log(`File with ID '${fileIdToDelete}' deleted for user '${userId}'.`);
 
         return new Response(JSON.stringify({ message: `File with ID '${fileIdToDelete}' deleted successfully.` }), {
-            status: 200, // OK
+            status: 200,
             headers: { "Content-type": "application/json" }
         });
 
-    } catch(error) {
+    } catch (error) {
         console.error("Unhandled error in DELETE /files:", error);
         return new Response(JSON.stringify({ message: "Internal Server Error", error: error.message }), {
             status: 500,
-            headers: { "Content-type": "application/json"}
+            headers: { "Content-type": "application/json" }
         });
     }
 }
-
 
 export async function PATCH(request, context) {
     let body;
@@ -177,7 +174,7 @@ export async function PATCH(request, context) {
         }
 
         const updatedFile = await FileModel.findOneAndUpdate(
-            { id: fileId, user_id: userId },
+            { _id: fileId, user_id: userId },
             { $set: { name: newName, changedate: new Date().toISOString().split('T')[0] } },
             { new: true }
         );
