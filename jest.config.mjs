@@ -1,5 +1,4 @@
-/** @type {import('jest').Config} */
-const config = {
+export default {
     testEnvironment: "node",
     clearMocks: true,
     collectCoverage: true,
@@ -21,14 +20,12 @@ const config = {
     ],
 
     moduleNameMapper: {
-        "^@/(.*)$": "<rootDir>/src/$1",
+        "^(\\.{1,2}/.*)\\.js$": "$1"
     },
-
-    rootDir: ".",
 
     transform: {
-        '^.+\\.(js|jsx)$': 'babel-jest',
+        "^.+\\.[jt]sx?$": ["babel-jest", { configFile: "./babel.jest.config.mjs" }]
     },
-};
 
-export default config;
+    transformIgnorePatterns: ["/node_modules/"]
+};
