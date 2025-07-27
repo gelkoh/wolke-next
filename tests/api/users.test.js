@@ -26,8 +26,11 @@ describe('User API Endpoint', () => {
     test('GET /api/users/[id] returns user if found', async () => {
         await User.create({
             id: testUserId,
-            name: 'Test User',
-            email: 'test@example.com'
+            username: 'Test User',
+            password: 'testpassword',
+            email: 'test@example.com',
+            profile_pic_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            storage_amount: 5000
         });
 
         const mockRequest = {};
