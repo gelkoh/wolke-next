@@ -21,13 +21,17 @@ export async function connectTestDb() {
 
         process.env.MONGO_URI = mongoUri;
 
-        await mongoose.disconnect();
-        await mongoose.connect(mongoUri, { dbName: "testdb" });
+        if (mongoose.connection.readyState !== 1) {
+            await mongoose.connect(mongoUri, { dbName: "testdb" });
+        }
+
         isConnectedToTestDB = true;
 
-        await User.deleteMany({});
-        await File.deleteMany({});
-        await LogEntry.deleteMany({});
+        if (mongoose.connection?.readyState === 1) {
+            await User.deleteMany({});
+            await File.deleteMany({});
+            await LogEntry.deleteMany({});
+        }
 
         const testUser = await User.create({
             id: "testuser1",
@@ -77,8 +81,9 @@ export async function connectTestDb() {
         ]);
     } catch (error) {
         console.error("Error connecting to test DB:", error);
-        process.exit(1);
+        throw new Error("Failed to connect to in-memory test database.");
     }
+
     return mongoServer;
 }
 

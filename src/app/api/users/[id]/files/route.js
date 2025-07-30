@@ -15,6 +15,15 @@ async function connectDb() {
     } catch (error) {
         console.error("MongoDB connection error: ", error);
         throw new Error("Failed to connect to database");
+        
+        // Remove this unreachable code:
+        // return new Response(
+        //     JSON.stringify({
+        //         message: "Internal Server Error",
+        //         error: error.message,
+        //     }),
+        //     { status: 500 }
+        // );
     }
 }
 
@@ -37,6 +46,7 @@ export async function GET(request, context) {
         });
     }
 }
+
 export async function POST(request, context) { 
     let body;
     try {
