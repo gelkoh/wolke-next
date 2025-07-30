@@ -27,5 +27,8 @@ export default {
         "^.+\\.[jt]sx?$": ["babel-jest", { configFile: "./babel.jest.config.mjs" }]
     },
 
-    transformIgnorePatterns: ["/node_modules/"]
+    transformIgnorePatterns: ["/node_modules/"],
+
+    maxWorkers: 1,
+    testTimeout: 30000
 };

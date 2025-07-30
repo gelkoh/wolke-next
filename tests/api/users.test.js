@@ -14,7 +14,10 @@ describe('User API Endpoint', () => {
     });
 
     afterEach(async () => {
-        await User.deleteMany({});
+        if (mongoose.connection?.readyState === 1) {
+            await User.deleteMany({});
+        }
+
         jest.clearAllMocks();
     });
 
@@ -23,14 +26,14 @@ describe('User API Endpoint', () => {
         jest.restoreAllMocks();
     });
 
-    test('GET /api/users/[id] returns user if found', async () => {
-        await User.create({
+    test("GET /api/users/:id returns user by custom id", async () => {
+        const testUser = await User.create({
             id: testUserId,
-            username: 'Test User',
-            password: 'testpassword',
-            email: 'test@example.com',
-            profile_pic_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-            storage_amount: 5000
+            username: "Test User",
+            password: "testpassword",
+            email: "test@example.com",
+            profile_pic_url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+            storage_amount: 5000,
         });
 
         const mockRequest = {};
@@ -41,8 +44,30 @@ describe('User API Endpoint', () => {
 
         expect(response.status).toBe(200);
         expect(body.id).toBe(testUserId);
-        expect(body.name).toBe('Test User');
+        expect(body.username).toBe("Test User");
+        expect(body.email).toBe("test@example.com");
     });
+
+    // test('GET /api/users/[id] returns user if found', async () => {
+    //     await User.create({
+    //         id: testUserId,
+    //         username: 'Test User',
+    //         password: 'testpassword',
+    //         email: 'test@example.com',
+    //         profile_pic_url: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+    //         storage_amount: 5000
+    //     });
+    //
+    //     const mockRequest = {};
+    //     const mockContext = { params: { id: testUserId } };
+    //
+    //     const response = await getUser(mockRequest, mockContext);
+    //     const body = await response.json();
+    //
+    //     expect(response.status).toBe(200);
+    //     expect(body.id).toBe(testUserId);
+    //     expect(body.name).toBe('Test User');
+    // });
 
     test('GET /api/users/[id] returns 404 if user not found', async () => {
         const mockRequest = {};

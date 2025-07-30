@@ -32,10 +32,10 @@ export async function GET(request, { params }) {
             headers: { "Content-Type": "application/json" }
         });
     } catch (error) {
-        console.error("Error fetching logs:", error);
+        const isConnectionError = error.message === "Failed to connect to database";
         return new Response(JSON.stringify({
             message: "Internal Server Error",
-            error: error.message
+            error: isConnectionError ? "Failed to connect to database" : error.message
         }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
