@@ -176,6 +176,14 @@ export async function PATCH(request, context) {
 
         const { fileId, newName } = body;
 
+        if (!mongoose.Types.ObjectId.isValid(fileId)) {
+            return new Response(JSON.stringify({ message: "Invalid file ID format." }), {
+                status: 400,
+                headers: { "Content-type": "application/json" }
+             });
+         }
+
+
         if (!fileId || !newName || typeof newName !== 'string' || newName.trim() === '') {
             return new Response(JSON.stringify({ message: "Missing or invalid 'fileId' or 'newName' in request body." }), {
                 status: 400,
